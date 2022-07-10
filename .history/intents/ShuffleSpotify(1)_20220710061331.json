@@ -1,0 +1,247 @@
+{
+  "id": "030a5614-611c-4a80-8a0f-957f6c174651",
+  "name": "ShuffleSpotifwy",
+  "auto": true,
+  "condition": "",
+  "conditionalFollowupEvents": [],
+  "conditionalResponses": [],
+  "context": [],
+  "contexts": [],
+  "endInteraction": false,
+  "events": [],
+  "fallbackIntent": false,
+  "liveAgentHandoff": false,
+  "parentId": null,
+  "followUpIntents": [],
+  "priority": 500000,
+  "responses": [
+    {
+      "action": "",
+      "affectedContexts": [],
+      "parameters": [
+        {
+          "noInputPromptMessages": [],
+          "noMatchPromptMessages": [],
+          "promptMessages": [],
+          "defaultValue": "",
+          "name": "onoff",
+          "dataType": "@sys.any",
+          "isList": false,
+          "required": false,
+          "prompts": [],
+          "value": "$onoff",
+          "outputDialogContexts": []
+        }
+      ],
+      "defaultResponsePlatforms": {},
+      "messages": [],
+      "resetContexts": false
+    }
+  ],
+  "rootParentId": null,
+  "templates": [],
+  "userSays": [
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "start",
+          "userDefined": true,
+          "alias": "onoff",
+          "meta": "@sys.any"
+        },
+        {
+          "text": " shuffling",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "0b0b4925-1bbd-497a-b6d0-e345fd43c283",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "stop",
+          "userDefined": true,
+          "alias": "onoff",
+          "meta": "@sys.any"
+        },
+        {
+          "text": " shuffling",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "85b1bf15-da08-46d0-8fa0-653d7898e861",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "shuffle",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "86fe43d0-7f82-4d5f-a8bc-a03824d89d68",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "shuffle mode ",
+          "userDefined": false
+        },
+        {
+          "text": "toggle",
+          "userDefined": true,
+          "alias": "onoff",
+          "meta": "@sys.any"
+        }
+      ],
+      "count": 0,
+      "id": "9d23b0cf-568f-45e7-b20a-cfa437fc1e65",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "shuffle mode ",
+          "userDefined": false
+        },
+        {
+          "text": "off",
+          "userDefined": true,
+          "alias": "onoff",
+          "meta": "@sys.any"
+        }
+      ],
+      "count": 0,
+      "id": "b1e60d66-5a5a-4f41-8d09-bf04a8402d7f",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "turn ",
+          "userDefined": false
+        },
+        {
+          "text": "on",
+          "userDefined": true,
+          "alias": "onoff",
+          "meta": "@sys.any"
+        },
+        {
+          "text": " shuffle",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "77a88789-9a19-423f-9a61-67c93c5d115b",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "turn ",
+          "userDefined": false
+        },
+        {
+          "text": "off",
+          "userDefined": true,
+          "alias": "onoff",
+          "meta": "@sys.any"
+        },
+        {
+          "text": " shuffle",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "6b007870-cef4-43be-b05c-05ac2c9a5ef8",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "shuffle ",
+          "userDefined": false
+        },
+        {
+          "text": "off",
+          "userDefined": true,
+          "alias": "onoff",
+          "meta": "@sys.any"
+        }
+      ],
+      "count": 0,
+      "id": "5c88caa7-a79e-43db-9651-dab5eaeafe2f",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "toggle",
+          "userDefined": true,
+          "alias": "onoff",
+          "meta": "@sys.any"
+        },
+        {
+          "text": " shuffle",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "33e99b92-cea9-43eb-91d1-e6356e234b30",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "shuffle ",
+          "userDefined": false
+        },
+        {
+          "text": "on",
+          "userDefined": true,
+          "alias": "onoff",
+          "meta": "@sys.any"
+        }
+      ],
+      "count": 0,
+      "id": "19da8d7e-2ca2-40dd-b661-6f0216da921a",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "shuffle mode ",
+          "userDefined": false
+        },
+        {
+          "text": "on",
+          "userDefined": true,
+          "alias": "onoff",
+          "meta": "@sys.any"
+        }
+      ],
+      "count": 0,
+      "id": "30380629-1c6f-4041-a7dd-0c3cfc3f6c25",
+      "updated": null
+    }
+  ],
+  "webhookForSlotFilling": false,
+  "webhookUsed": false
+}

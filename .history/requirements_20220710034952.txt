@@ -1,0 +1,2 @@
+google-api-core
+google-cloud-dialogflow
