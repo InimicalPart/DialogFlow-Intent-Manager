@@ -1,0 +1,57 @@
+{
+  "id": "9514e472-e71a-4da8-83fb-0651fb5d65ff",
+  "name": "hexSleep",
+  "auto": true,
+  "condition": "",
+  "conditionalFollowupEvents": [],
+  "conditionalResponses": [],
+  "context": [],
+  "contexts": [],
+  "endInteraction": false,
+  "events": [],
+  "fallbackIntent": false,
+  "liveAgentHandoff": false,
+  "parentId": null,
+  "followUpIntents": [],
+  "priority": 500000,
+  "responses": [
+    {
+      "action": "",
+      "affectedContexts": [],
+      "parameters": [],
+      "defaultResponsePlatforms": {},
+      "messages": [],
+      "resetContexts": false
+    }
+  ],
+  "rootParentId": null,
+  "templates": [],
+  "userSays": [
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "go to sleep",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "6a77d131-8494-4c67-8912-0d142107b5f2",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "stop listening",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "b5313f2d-71da-4bba-935b-39503ed9a4cc",
+      "updated": null
+    }
+  ],
+  "webhookForSlotFilling": false,
+  "webhookUsed": false
+}
