@@ -107,6 +107,8 @@ def create_intent_from_files():
 
     print("Doing checks against the files...")
     for filename in filenames:
+        if filename == ".gitkeep":
+            continue
         print("Checking {}...".format(filename), end="")
         if filename.endswith(".json"):
             try:
@@ -198,6 +200,8 @@ def delete_intents():
     newfiles = []
     print("Doing checks against the files...")
     for filename in filenames:
+        if filename == ".gitkeep":
+            continue
         print("Checking {}...".format(filename), end="")
         if filename.endswith(".json"):
             try:
