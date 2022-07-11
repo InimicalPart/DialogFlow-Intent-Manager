@@ -12,12 +12,52 @@ import google.cloud.dialogflow_v2 as dialogflow
 import os
 import json
 import shutil
-
+import argparse
+from colorama import Fore, Back, Style
+parser = argparse.ArgumentParser(description="DialogFlow Intent Manager",
+                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument("-c", "--delete", action="store_true", help="create intents")
+parser.add_argument("-d", "--create", action="store_true", help="delete intents")
+parser.add_argument("-s", "--silent", action="store_true", help="silent mode, no output, only errors")
+parser.add_argument("-b", "--backup-intents", action="store_true", help="backup intents")
+parser.add_argument("-p", "--project-id", help="project id")
+parser.add_argument("-i", "--intents-folder", help="folder where intents are kept (will create 'done' and 'bkup' (if backup is enabled) in the folder)")
+parser.add_argument("-a", "--authorization-path", help="path to the authorization file")
+args = parser.parse_args()
+arguments = vars(args)
+print(arguments)
+config = {}
 try:
     config = json.load(open('config.json'))
 except:
-    print('config.json not found or is invalid')
+    if arguments["project_id"] is None or arguments["authorization_path"] is None:
+        print('config.json not found or is invalid')
+        exit()
+    if (arguments["project_id"] is None and arguments["authorization_path"] is not None) or (arguments["project_id"] is not None and arguments["authorization_path"] is None):
+        print('Config file does not exist, and insufficient arguments were provided, please provide both project_id and authorization_path')
+        exit()
+    pass
+if arguments["create"] is True and arguments["delete"] is True:
+    print('You can only choose one of the options')
     exit()
+if arguments["project_id"] is not None:
+    config["project_id"] = arguments["project_id"]
+if arguments["authorization_path"] is not None:
+    config["authFile"] = re.sub(r"\\","/",arguments["authorization_path"])
+if arguments["backup_intents"] is True:
+    config["backupIntentFiles"] = True
+
+mainPath=None
+try:
+    mainPath = re.sub("\/$","",re.sub(r"\\","/",arguments["intents_folder"])) + "/"
+except:
+    pass
+if mainPath is None:
+    mainPath = "./intents/"
+
+os.makedirs(mainPath + 'done', exist_ok=True)
+if config["backupIntentFiles"] is True:
+    os.makedirs(mainPath + 'bkup', exist_ok=True)
 
 try:
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = config['authFile']
@@ -57,8 +97,6 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
                             text=training_phrases_part['text'],
                             entity_type=training_phrases_part['entityType'],
                             alias=training_phrases_part['alias'],
-                            
-                            
                         ))
                     else:
                         parts.append(dialogflow.Intent.TrainingPhrase.Part(text=training_phrases_part["text"]))
@@ -90,56 +128,63 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
     )}
     )
 
-def create_intent_from_files():
-    print("Checking if I can list Intents...")
+def create_intents():
+    if arguments["silent"] is False:
+        print("Checking if access to DialogFlow is granted...")
     try:
         list_intents(config['project_id'])
     except Exception as e :
-        print("Intents list failed! {}".format(e))
+        print("Access Denied, Reason: {}".format(e))
         exit()
-    print("Intents list successful!")
+    if arguments["silent"] is False:
+        print(Fore.GREEN + "Access Granted!" + Fore.RESET)
 
-    filenames = next(os.walk("./intents/"), (None, None, []))[2]
+    filenames = next(os.walk(mainPath), (None, None, []))[2]
     newfiles = []
+    try:
+        filenames.remove(".gitkeep")
+    except:
+        pass
     if len(filenames) == 0:
-        print("No intents found in ./intents/, exiting...")
+        print(Fore.RED + "No intents found in {}, exiting...".format(mainPath) + Fore.RESET)
         exit()
-
-    print("Doing checks against the files...")
+    if arguments["silent"] is False:
+        print("Doing checks against the files...\n")
     for filename in filenames:
-        if filename == ".gitkeep":
-            continue
-        print("Checking {}...".format(filename), end="")
+        if arguments["silent"] is False:
+            print("Checking {}... ".format(filename), end="")
         if filename.endswith(".json"):
             try:
-                data = json.load(open("./intents/" + filename))
+                data = json.load(open(mainPath + filename))
             except:
-                print("{} is invalid, Reason: {}".format(filename, "doesn't contain proper json data"))
+                print(Fore.RED +"FAIL"+Fore.RESET+", Reason: {}".format( "invalid data"))
                 exit()
             if "name" not in data:
-                print("{} is invalid, Reason: {}".format(filename, "intent doesn't contain a name"))
+                print(Fore.RED +"FAIL"+Fore.RESET+", Reason: {}".format( "intent has no name"))
                 exit()
             if "userSays" not in data:
-                print("{} is invalid, Reason: {}".format(filename, "intent doesn't contain userSays"))
+                print(Fore.RED +"FAIL"+Fore.RESET+", Reason: {}".format( "intent has no userSys"))
                 exit()
             if len(data["userSays"]) == 0:
-                print("{} is invalid, Reason: {}".format(filename, "intent doesn't contain any userSays"))
+                print(Fore.RED + "FAIL"+Fore.RESET+", Reason: {}".format( "intent has no items in userSys"))
                 exit()
-            print("OK")
+            print(Fore.GREEN+"OK"+Fore.RESET)
             newfiles.append(filename)
         else:
-            print("{} is invalid, Reason: {}".format(filename, "doesn't have .json extension"))
+            print(Fore.RED +"FAIL"+Fore.RESET+", Reason: {}".format( "not .json"))
         
     for filename in newfiles:
-        data = json.load(open("./intents/" + filename))
+        data = json.load(open(mainPath + filename))
         # print(data)
-        print("Adding intent with name '{}' specified by '{}'... ".format(data["name"], filename), end="")
+        if arguments["silent"] is False:
+            print("Adding intent with name '{}' specified by '{}'... ".format(data["name"], filename), end="")
         trainingPhrases = []
         responses = []
         dataCopy = data.copy()
         intentName = data["name"]
         if get_intent(config['project_id'], intentName) is not None:
-            print("SKIPPED, alreadyexists")
+            if arguments["silent"] is False:
+                print(Fore.LIGHTBLACK_EX+ "SKIPPED, alreadyexists" + Fore.RESET)
             continue
         for userSays in data["userSays"]:
             a = []
@@ -177,96 +222,121 @@ def create_intent_from_files():
         try:
             create_intent(config['project_id'], intentName, trainingPhrases, responses, parametersyay)
         except Exception as e:
-            print("FAIL, {}".format(e))
+            if arguments["silent"] is False:
+                print(Fore.RED + "FAIL" + Fore.RESET+ ", Reason: {}".format(e))
+            else:
+                print(Fore.RED+"{} failed with error {}".format(filename, e))
             exit()
-        print("OK")
+        if arguments["silent"] is False:
+            print(Fore.GREEN+"OK"+Fore.RESET)
+
         if config["backupIntentFiles"]==True:
-            shutil.copy2("./intents/" + filename, "./intents/bkup/")
-        os.rename("./intents/" + filename, "./intents/done/" + re.sub(".json","",filename) + "-ADDED-" + re.sub("\/","-",re.sub(":",".",re.sub(" ", "_", time.strftime("%x_%X")))) + ".json")
+            shutil.copy2(mainPath + filename, mainPath + "bkup/")
+        os.rename(mainPath + filename, mainPath + "done/" + re.sub(".json","",filename) + "-ADDED-" + re.sub("\/","-",re.sub(":",".",re.sub(" ", "_", time.strftime("%x_%X")))) + ".json")
             
 def delete_intents():
-    print("Checking if I can list Intents...")
+    if arguments["silent"] is False:
+        print("Checking if access to DialogFlow is granted...")
     try:
         list_intents(config['project_id'])
     except Exception as e :
-        print("Intents list failed! {}".format(e))
+        print("Access Denied, Reason: {}".format(e))
         exit()
-    print("Intents list successful!")
+    if arguments["silent"] is False:        
+        print(Fore.GREEN + "Access Granted!" + Fore.RESET)
 
-    filenames = next(os.walk("./intents/"), (None, None, []))[2]
+    filenames = next(os.walk(mainPath), (None, None, []))[2]
+    # remove .gitkeep
+    try:
+        filenames.remove(".gitkeep")
+    except:
+        pass
     if len(filenames) == 0:
-        print("No intents found in ./intents/, exiting...")
-        exit()
+       print(Fore.RED + "No intents found in {}, exiting...".format(mainPath) + Fore.RESET)
+       exit()
     newfiles = []
-    print("Doing checks against the files...")
+    if arguments["silent"] is False:
+        print("Doing checks against the files...\n")
     for filename in filenames:
-        if filename == ".gitkeep":
-            continue
-        print("Checking {}...".format(filename), end="")
+        if arguments["silent"] is False:
+            print("Checking {}... ".format(filename), end="")
         if filename.endswith(".json"):
             try:
-                data = json.load(open("./intents/" + filename))
+                data = json.load(open(mainPath + filename))
             except:
-                print("{} is invalid, Reason: {}".format(filename, "doesn't contain proper json data"))
+                print(Fore.RED +"FAIL"+Fore.RESET+", Reason: {}".format( "invalid data"))
                 exit()
             if "name" not in data:
-                print("{} is invalid, Reason: {}".format(filename, "intent doesn't contain a name"))
+                print(Fore.RED +"FAIL"+Fore.RESET+", Reason: {}".format( "intent has no name"))
                 exit()
             if "userSays" not in data:
-                print("{} is invalid, Reason: {}".format(filename, "intent doesn't contain userSays"))
+                print(Fore.RED +"FAIL"+Fore.RESET+", Reason: {}".format( "intent has no userSys"))
                 exit()
             if len(data["userSays"]) == 0:
-                print("{} is invalid, Reason: {}".format(filename, "intent doesn't contain any userSays"))
+                print(Fore.RED + "FAIL"+Fore.RESET+", Reason: {}".format( "intent has no items in userSys"))
                 exit()
-            print("OK")
+            print(Fore.GREEN+"OK"+Fore.RESET)
+
             newfiles.append(filename)
         else:
-            print("{} is invalid, Reason: {}".format(filename, "doesn't have .json extension"))
+            print("FAIL"+Fore.RESET+", {}".format( "not .json"))
         
     for filename in newfiles:
-        data = json.load(open("./intents/" + filename))
+        data = json.load(open(mainPath + filename))
+        if arguments["silent"] is False:
+            print("Deleting intent with name '{}' specified by '{}'... ".format(data["name"], filename), end="")
         intentName = data["name"]
-        print("Deleting intent with name '{}' specified by '{}'... ".format(data["name"], filename), end="")
         if get_intent(config['project_id'], intentName) is None:
-            print("SKIPPED, doesntexist")
+            print(Fore.LIGHTBLACK_EX+"SKIPPED, doesntexist"+Fore.RESET)
             continue
         try:
             intentId = get_intent(config['project_id'], intentName).name
             intentId= re.sub(r'.*/', '', intentId)
             delete_intent(config['project_id'], intentId)
         except Exception as e:
-            print("FAIL, {}".format(e))
+            if arguments["silent"] is False:
+                print(Fore.RED + "FAIL"+ Fore.RESET+", Reason: {}".format(e))
+            else:
+                print(Fore.RED+"{} failed with error {}".format(filename, e))
             exit()
-        print("OK")
+        if arguments["silent"] is False:
+            print(Fore.GREEN+"OK"+Fore.RESET)
         if config["backupIntentFiles"]==True:
-            shutil.copy2("./intents/" + filename, "./intents/bkup/")
-        os.rename("./intents/" + filename, "./intents/done/" + re.sub(".json","",filename) + "-DELETED-" + re.sub("\/","-",re.sub(":",".",re.sub(" ", "_", time.strftime("%x_%X")))) + ".json")
+            shutil.copy2(mainPath + filename, mainPath + "bkup/")
+        os.rename(mainPath + filename, mainPath + "done/" + re.sub(".json","",filename) + "-DELETED-" + re.sub("\/","-",re.sub(":",".",re.sub(" ", "_", time.strftime("%x_%X")))) + ".json")
 def banner():
-    print("""
-==========================================================
-                DialogFlow Intent Manager
+    print(Fore.YELLOW + """
+[==========================================================]"""+Fore.RESET+"""
+                 DialogFlow Intent Manager
     
-    Created by:
-        @InimicalPart (https://github.com/InimicalPart)
-==========================================================
-    """)
+     Created by:
+         @InimicalPart ("""+Fore.CYAN+"""https://github.com/InimicalPart"""+Fore.RESET+""")
+""" + Fore.YELLOW + """[==========================================================]
+    """ + Fore.RESET)
 
 def main():
-    banner()
-    print("""
-Choose an option:
-    1. Create intents
-    2. Delete intents
-        """)
-    option = input("Option: ")
-    if option == "1":
-        print("\n\nAdd all intents that you want to add to the ./intents/ folder and press enter when done")
-        input()
-        create_intent_from_files()
-    elif option == "2":
-        print("\n\nAdd all intents that you want to delete to the ./intents/ folder and press enter when done")
-        input()
-        delete_intents()
+    if arguments["silent"] is False:
+        banner()
+    if arguments["create"] is False and arguments["delete"] is False:
+        print("""
+    Choose an option:
+        1. Create intents
+        2. Delete intents
+            """)
+        option = input("Option: ")
+        if option == "1":
+            print("\n\nAdd all intents that you want to create to the " + mainPath + " folder and press enter when done")
+            input()
+            create_intents()
+        elif option == "2":
+            print("\n\nAdd all intents that you want to delete to the " + mainPath + " folder and press enter when done")
+            input()
+            delete_intents()
+    else:
+        if arguments["create"] is True:
+            create_intents()
+        elif arguments["delete"] is True:
+            delete_intents()
 
 
 
