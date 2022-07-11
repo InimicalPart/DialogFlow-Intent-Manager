@@ -54,5 +54,6 @@ python3 main.py -c -i C:\this\is\a\directory\intents -a C:\this\is\a\directory\a
 
 If both `--create` and `--delete` are not specified, the script will proceed with the interactive part.
 
-If `--project-id/-p` and `--authorization-path/-a` are specified, the script will not look for `config.json` and will use the values specified.<br>
+If `--project-id/-p` and `--authorization-path/-a` are specified, the script will not look for `config.json` and will use the values specified.
+
 To see all switches and get a description of them, run the script with the `--help/-h` switch.
