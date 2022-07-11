@@ -7,7 +7,7 @@ DialogFlow-Intent-Manager is a script written in Python that allows you to creat
 - [Usage](#usage)
   - [Creating Intents (option 1)](#creating-intents-option-1)
   - [Deleting Intents (option 2)](#deleting-intents-option-2)
-
+- [Automating the Process](#automating-the-process)
 ---
 
 ### Usage
