@@ -2,6 +2,7 @@
     "project_id": "intraai",
     "authFile": "authorization.json",
 
-    "backupIntentFiles": true 
+    "backupIntentFiles": true,
+    "createDoneFolder": true,
 
 }
