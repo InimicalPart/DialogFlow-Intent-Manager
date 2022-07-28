@@ -20,7 +20,7 @@ parser.add_argument("-c", "--delete", action="store_true", help="create intents"
 parser.add_argument("-d", "--create", action="store_true", help="delete intents")
 parser.add_argument("-s", "--silent", action="store_true", help="silent mode, no output, only errors")
 parser.add_argument("-b", "--backup-intents", action="store_true", help="backup intents")
-parser.add_argument("-d", "--create-done", action="store_true", help="create done folder")
+parser.add_argument("-k", "--create-done", action="store_true", help="create done folder")
 parser.add_argument("-p", "--project-id", help="project id")
 parser.add_argument("-i", "--intents-folder", help="folder where intents are kept (will create 'done' and 'bkup' (if backup is enabled) in the folder)")
 parser.add_argument("-a", "--authorization-path", help="path to the authorization file")
