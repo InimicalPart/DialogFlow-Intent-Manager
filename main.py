@@ -58,7 +58,7 @@ except:
 if mainPath is None:
     mainPath = "./intents/"
 
-if config["createDoneFolder"] = True:
+if config["createDoneFolder"] is True:
     os.makedirs(mainPath + 'done', exist_ok=True)
 if config["backupIntentFiles"] is True:
     os.makedirs(mainPath + 'bkup', exist_ok=True)
