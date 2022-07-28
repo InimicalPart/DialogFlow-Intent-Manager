@@ -50,8 +50,6 @@ If you are planning to use this in a script, you might want to skip the interact
 python3 main.py -c -i C:\this\is\a\directory\intents -a C:\this\is\a\directory\authorization.json -p myAI
 ```
 
-**NOTE:** When using the `--intents-folder/-i` switch, the script will create a `done` folder inside of the specified folder, it will also create a `bkup` folder if the switch for backing up intents is specified.
-
 If both `--create` and `--delete` are not specified, the script will proceed with the interactive part.
 
 If `--project-id/-p` and `--authorization-path/-a` are specified, the script will not look for `config.json` and will use the values specified.
