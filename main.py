@@ -194,7 +194,8 @@ def create_intents():
             if len(data["userSays"]) == 0:
                 print(Fore.RED + "FAIL"+Fore.RESET+", Reason: {}".format( "intent has no items in userSys"))
                 exit()
-            print(Fore.GREEN+"OK"+Fore.RESET)
+            if arguments["silent"] is False:
+                print(Fore.GREEN+"OK"+Fore.RESET)
             newfiles.append(filename)
         else:
             print(Fore.RED +"FAIL"+Fore.RESET+", Reason: {}".format( "not .json"))
@@ -304,7 +305,8 @@ def delete_intents():
                 if len(data["userSays"]) == 0:
                     print(Fore.RED + "FAIL"+Fore.RESET+", Reason: {}".format( "intent has no items in userSys"))
                     exit()
-                print(Fore.GREEN+"OK"+Fore.RESET)
+                if arguments["silent"] is False:
+                    print(Fore.GREEN+"OK"+Fore.RESET)
 
                 newfiles.append(filename)
             else:
