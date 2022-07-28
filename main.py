@@ -20,6 +20,7 @@ parser.add_argument("-c", "--delete", action="store_true", help="create intents"
 parser.add_argument("-d", "--create", action="store_true", help="delete intents")
 parser.add_argument("-s", "--silent", action="store_true", help="silent mode, no output, only errors")
 parser.add_argument("-b", "--backup-intents", action="store_true", help="backup intents")
+parser.add_argument("-d", "--create-done", action="store_true", help="create done folder")
 parser.add_argument("-p", "--project-id", help="project id")
 parser.add_argument("-i", "--intents-folder", help="folder where intents are kept (will create 'done' and 'bkup' (if backup is enabled) in the folder)")
 parser.add_argument("-a", "--authorization-path", help="path to the authorization file")
@@ -47,6 +48,8 @@ if arguments["authorization_path"] is not None:
 if arguments["backup_intents"] is True:
     config["backupIntentFiles"] = True
 
+if "createDoneFolder" not in config:
+  config["createDoneFolder"] = False
 mainPath=None
 try:
     mainPath = re.sub("\/$","",re.sub(r"\\","/",arguments["intents_folder"])) + "/"
@@ -55,7 +58,8 @@ except:
 if mainPath is None:
     mainPath = "./intents/"
 
-os.makedirs(mainPath + 'done', exist_ok=True)
+if config["createDoneFolder"] = True:
+    os.makedirs(mainPath + 'done', exist_ok=True)
 if config["backupIntentFiles"] is True:
     os.makedirs(mainPath + 'bkup', exist_ok=True)
 
@@ -232,7 +236,8 @@ def create_intents():
 
         if config["backupIntentFiles"]==True:
             shutil.copy2(mainPath + filename, mainPath + "bkup/")
-        os.rename(mainPath + filename, mainPath + "done/" + re.sub(".json","",filename) + "-ADDED-" + re.sub("\/","-",re.sub(":",".",re.sub(" ", "_", time.strftime("%x_%X")))) + ".json")
+        if config["createDoneFolder"]==True:
+            os.rename(mainPath + filename, mainPath + "done/" + re.sub(".json","",filename) + "-ADDED-" + re.sub("\/","-",re.sub(":",".",re.sub(" ", "_", time.strftime("%x_%X")))) + ".json")
             
 def delete_intents():
     if arguments["silent"] is False:
@@ -303,7 +308,8 @@ def delete_intents():
             print(Fore.GREEN+"OK"+Fore.RESET)
         if config["backupIntentFiles"]==True:
             shutil.copy2(mainPath + filename, mainPath + "bkup/")
-        os.rename(mainPath + filename, mainPath + "done/" + re.sub(".json","",filename) + "-DELETED-" + re.sub("\/","-",re.sub(":",".",re.sub(" ", "_", time.strftime("%x_%X")))) + ".json")
+        if config["createDoneFolder"]==True:
+            os.rename(mainPath + filename, mainPath + "done/" + re.sub(".json","",filename) + "-DELETED-" + re.sub("\/","-",re.sub(":",".",re.sub(" ", "_", time.strftime("%x_%X")))) + ".json")
 def banner():
     print(Fore.YELLOW + """
 [==========================================================]"""+Fore.RESET+"""
