@@ -109,7 +109,18 @@ def delete_intent(project_id, intent_id):
     intent_path = intents_client.intent_path(project_id, intent_id)
     intents_client.delete_intent(request={"name": intent_path})
 
-def create_intent(project_id, display_name, training_phrases_parts, message_texts, parameters=[]):
+def get_fallback_intent(project_id):
+    intents_client = dialogflow.IntentsClient()
+    parent = dialogflow.AgentsClient.agent_path(project_id)
+    intents = intents_client.list_intents(request={"parent": parent})
+    for intent in intents:
+        if intent.is_fallback is True:
+            return intent
+    return None
+
+
+
+def create_intent(project_id, display_name, training_phrases_parts, message_texts, parameters=[], intentData={}):
     intents_client = dialogflow.IntentsClient()
     parent = dialogflow.AgentsClient.agent_path(project_id)
     training_phrases = []
@@ -150,7 +161,18 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
         display_name=display_name,
         training_phrases=training_phrases,
         messages=[message],
-        parameters=newParameters
+        parameters=newParameters,
+
+        webhook_state=intentData["webhookUsed"],
+        priority=intentData["priority"],
+        is_fallback=intentData["fallbackIntent"],
+        ml_enabled=intentData["auto"],
+        live_agent_handoff=intentData["liveAgentHandoff"],
+        end_interaction=intentData["endInteraction"],
+        events=intentData["events"],
+
+        # All other fields may be added in the future.
+
     )}
     )
 
@@ -247,7 +269,7 @@ def create_intents():
 
 
         try:
-            create_intent(config['project_id'], intentName, trainingPhrases, responses, parametersyay)
+            create_intent(config['project_id'], intentName, trainingPhrases, responses, parametersyay, data)
         except Exception as e:
             if arguments["silent"] is False:
                 print(Fore.RED + "FAIL" + Fore.RESET+ ", Reason: {}".format(e))
@@ -342,6 +364,8 @@ def delete_intents():
         with open(mainPath, "r") as f:
             intentsToRemove = f.read().splitlines()
         for intent in intentsToRemove:
+            if intent == "fallback":
+                intent = get_fallback_intent(config['project_id']).display_name
             if arguments["silent"] is False:
                 print("Deleting intent with name '{}'... ".format(intent), end="")
             if get_intent(config['project_id'], intent) is None:
@@ -360,6 +384,7 @@ def delete_intents():
                 exit()
             if arguments["silent"] is False:
                 print(Fore.GREEN+"OK"+Fore.RESET)
+
 
 def banner():
     print(Fore.YELLOW + """
@@ -389,6 +414,8 @@ def main():
             print("\n\nAdd all intents that you want to delete to the " + mainPath + " folder and press enter when done")
             input()
             delete_intents()
+        elif option == "3":
+            print(get_fallback_intent(config['project_id']))
     else:
         if arguments["create"] is True:
             create_intents()
