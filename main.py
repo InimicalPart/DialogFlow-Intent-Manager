@@ -128,15 +128,15 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
         parts = []
         for training_phrases_part in training_phrases_prt:
             if isinstance(training_phrases_part, dict):
-                if "userDefined" in training_phrases_part:
-                    if training_phrases_part["userDefined"] == True:
-                        parts.append(dialogflow.types.Intent.TrainingPhrase.Part(
-                            text=training_phrases_part['text'],
-                            entity_type=training_phrases_part['entityType'],
-                            alias=training_phrases_part['alias'],
-                        ))
-                    else:
-                        parts.append(dialogflow.Intent.TrainingPhrase.Part(text=training_phrases_part["text"]))
+                if "alias" in training_phrases_part and "entityType" in training_phrases_part:
+                    parts.append(dialogflow.types.Intent.TrainingPhrase.Part(
+                        text=training_phrases_part['text'],
+                        entity_type=training_phrases_part['entityType'],
+                        alias=training_phrases_part['alias'],
+                        user_defined=True
+                    ))
+                else:
+                    parts.append(dialogflow.Intent.TrainingPhrase.Part(text=training_phrases_part["text"]))
             else:
                 parts.append(dialogflow.Intent.TrainingPhrase.Part(text=training_phrases_part))
         training_phrase = dialogflow.Intent.TrainingPhrase(parts=parts)
@@ -145,6 +145,7 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
     message = dialogflow.Intent.Message(text=text)
     newParameters = []
     if len(parameters) > 0:
+        print(len(parameters))
         for parameter in parameters:
             newParameters.append(dialogflow.Intent.Parameter(
                 name="",
@@ -156,6 +157,11 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
                 prompts=parameter['prompts'],
                 is_list=parameter['isList']
             ))
+    rev = intentData['auto']
+    if rev is True:
+        rev = False
+    else:
+        rev = True
     intents_client.create_intent(
         request={"parent": parent, "intent": dialogflow.Intent(
         display_name=display_name,
@@ -166,7 +172,7 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
         webhook_state=intentData["webhookUsed"],
         priority=intentData["priority"],
         is_fallback=intentData["fallbackIntent"],
-        ml_enabled=intentData["auto"],
+        ml_disabled=rev,
         live_agent_handoff=intentData["liveAgentHandoff"],
         end_interaction=intentData["endInteraction"],
         events=intentData["events"],
@@ -239,16 +245,15 @@ def create_intents():
             a = []
             if isinstance(userSays["data"], list):
                 for data in userSays["data"]:
-                    if "userDefined" in data:
-                        if data["userDefined"] == False:
-                            a.append(data["text"])
-                        else:
-                            newObj = {}
-                            newObj["text"] = data["text"]
-                            newObj["userDefined"] = True
-                            newObj["entityType"] = data["meta"]
-                            newObj["alias"] = data["alias"]
-                            a.append(newObj)
+                    if "meta" in data and "alias" in data:
+                        newObj = {}
+                        newObj["text"] = data["text"]
+                        newObj["userDefined"] = True
+                        newObj["entityType"] = data["meta"]
+                        newObj["alias"] = data["alias"]
+                        a.append(newObj)
+                    else:
+                        a.append(data["text"])
             else:
                 trainingPhrases.append(userSays["data"].text)
             
@@ -269,11 +274,12 @@ def create_intents():
 
 
         try:
-            create_intent(config['project_id'], intentName, trainingPhrases, responses, parametersyay, data)
+            create_intent(config['project_id'], intentName, trainingPhrases, responses, parametersyay, dataCopy)
         except Exception as e:
             if arguments["silent"] is False:
                 print(Fore.RED + "FAIL" + Fore.RESET+ ", Reason: {}".format(e))
             else:
+                print(e)
                 print(Fore.RED+"{} failed with error {}".format(filename, e))
             exit()
         if arguments["silent"] is False:
